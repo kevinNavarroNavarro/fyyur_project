@@ -1,0 +1,109 @@
+{% extends 'layouts/main.html' %}
+{% block title %}{{ artist[0].name }} | Artist{% endblock %}
+{% block content %}
+<div class="row">
+	<div class="col-sm-6">
+		<h1 class="monospace">
+			{{ artist[0].name }}
+		</h1>
+		<p class="subtitle">
+			ID: {{ artist[0].id }}
+		</p>
+		<div class="genres">
+			{% for genre in artist[0].genres %}
+			<span class="genre">{{ genre }}</span>
+			{% endfor %}
+		</div>
+		<p>
+			<i class="fas fa-globe-americas"></i> {{ artist[0].city }}, {{ artist[0].state }}
+		</p>
+		<p>
+			<i class="fas fa-phone-alt"></i> {% if artist[0].phone %}{{ artist[0].phone }}{% else %}No Phone{% endif %}
+        </p>
+        <p>
+			<i class="fas fa-link"></i> {% if artist[0].website %}<a href="{{ artist[0].website }}" target="_blank">{{ artist[0].website }}</a>{% else %}No Website{% endif %}
+		</p>
+		<p>
+			<i class="fab fa-facebook-f"></i> {% if artist[0].facebook_link %}<a href="{{ artist[0].facebook_link }}" target="_blank">{{ artist[0].facebook_link }}</a>{% else %}No Facebook Link{% endif %}
+        </p>
+		{% if artist[0].seeking_venue %}
+		<div class="seeking">
+			<p class="lead">Currently seeking performance venues</p>
+			<div class="description">
+				<i class="fas fa-quote-left"></i> {{ artist[0].seeking_description }} <i class="fas fa-quote-right"></i>
+			</div>
+		</div>
+		{% else %}	
+		<p class="not-seeking">
+			<i class="fas fa-moon"></i> Not currently seeking performance venues
+		</p>
+		{% endif %}
+	</div>
+	<div class="col-sm-6">
+		<img src="{{ artist[0].image_link }}" alt="Venue Image" />
+	</div>
+</div>
+<section>
+	<h2 class="monospace">{{ artist[0].upcoming_shows_count }} Upcoming {% if artist[0].upcoming_shows_count == 1 %}Show{% else %}Shows{% endif %}</h2>
+	<div class="row">
+		{%for show in artist[0].upcoming_shows %}
+		<div class="col-sm-4">
+			<div class="tile tile-show">
+				<img src="{{ show.venue_image_link }}" alt="Show Venue Image" />
+				<h5><a href="/venues/{{ show.venue_id }}">{{ show.venue_name }}</a></h5>
+				<h6>{{ show.start_time|datetime('full') }}</h6>
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+</section>
+<section>
+	<h2 class="monospace">{{ artist[0].past_shows_count }} Past {% if artist[0].past_shows_count == 1 %}Show{% else %}Shows{% endif %}</h2>
+	<div class="row">
+		{%for show in artist[0].past_shows %}
+		<div class="col-sm-4">
+			<div class="tile tile-show">
+				<img src="{{ show.venue_image_link }}" alt="Show Venue Image" />
+				<h5><a href="/venues/{{ show.venue_id }}">{{ show.venue_name }}</a></h5>
+				<h6>{{ show.start_time|datetime('full') }}</h6>
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+</section>
+
+<button onclick="edit_Artist(event)" class="btn btn-primary btn-lg" data-id="{{ artist[0].id }}">Edit</button>
+<button onclick="delete_Artist(event)" class="btn btn-primary btn-danger" data-id="{{ artist[0].id }}">Delete</button>
+
+
+<script>
+	function edit_Artist(e) {
+		const id = e.target.dataset.id
+
+		fetch(`/artists/${id}/edit`, {
+			method: 'GET'
+		})
+			.then(response => {
+				window.location.href = `/artists/${id}/edit`;
+			})
+			.catch(error => {
+				console.log(error);
+			})
+	}
+	
+	function delete_Artist(e) {
+		const id = e.target.dataset.id
+		fetch(`/artist/${id}`, {
+			method: 'DELETE'
+		})
+			.then(response => {
+            	window.location.href = response.url;
+			})
+			.catch(error => {
+				console.log(error);
+			})
+	}
+</script>
+
+{% endblock %}
+
